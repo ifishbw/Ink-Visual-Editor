@@ -126,13 +126,17 @@ jobs:
           prerelease: false
           generate_release_notes: true
           fail_on_unmatched_files: true
+          # No "!" exclusions in `files` below. This action feeds each line to
+          # glob.sync, which does not treat a leading "!" as a negation -- such a
+          # line simply matches nothing, and fail_on_unmatched_files would then
+          # fail the whole release. builder-debug.yml is already excluded upstream
+          # at the upload-artifact step, so it never reaches artifacts/.
           files: |
             artifacts/*.exe
             artifacts/*.AppImage
             artifacts/*.deb
             artifacts/*.yml
             artifacts/*.blockmap
-            !artifacts/builder-debug.yml
           body: |
             **InkVisual ${{ github.ref_name }}** — a graph-based editor for inkle's ink.
 

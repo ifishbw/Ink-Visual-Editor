@@ -1,0 +1,1206 @@
+:root {
+  --bg: #f4f5f8;
+  --panel: #ffffff;
+  --panel-2: #eaecf2;
+  --ink: #1c2240;
+  --ink-2: #4a5170;
+  --ink-3: #7c829c;
+  --rule: #d7dae3;
+  --accent: #3b5bdb;
+  --bad: #c0392b;
+  --warn: #b7791f;
+  --bad-bg: #fbe4e1;
+  --warn-bg: #fbf0d9;
+  --shadow: 0 1px 2px rgba(28, 34, 64, 0.08), 0 6px 18px rgba(28, 34, 64, 0.08);
+  --mono: 'IBM Plex Mono', Consolas, 'Courier New', monospace;
+  /* Structure preview. Hues come from inkTheme.ts so a preview row and the same line in the editor agree. */
+  --pv-choice: #c7254e;
+  --pv-divert: #1a5fd0;
+  --pv-cond: #b35c00;
+  --pv-gather: #b7791f;
+  --pv-anchor: #2e8b57;
+  --pv-prose: #c9cdd8;
+  --pv-logic: #dde0e8;
+  --pv-text: #1c2240;
+  --pv-dim: #7a7f8a;
+  --pv-hover: rgba(28, 34, 64, 0.05);
+  --play-now: var(--accent);
+  --play-now-bg: rgba(59, 91, 219, 0.16);
+  --play-trail: var(--pv-anchor);
+  --play-stale: var(--warn);
+  --play-cold: var(--ink-3);
+}
+:root[data-theme='dark'] {
+  --bg: #1a1b1e;
+  --panel: #232428;
+  --panel-2: #2c2d32;
+  --ink: #d8dade;
+  --ink-2: #a9abb3;
+  --ink-3: #7d8089;
+  --rule: #34363c;
+  --accent: #7aa2ff;
+  --bad: #ef7c6f;
+  --warn: #e0b060;
+  --bad-bg: #3a2320;
+  --warn-bg: #3a2f1a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.35);
+  --pv-choice: #e06c75;
+  --pv-divert: #7fb4ff;
+  --pv-cond: #e5a44b;
+  --pv-gather: #e0b060;
+  --pv-anchor: #7fc98b;
+  --pv-prose: #4a4d55;
+  --pv-logic: #3b3e45;
+  --pv-text: #d8dade;
+  --pv-dim: #8a8f9a;
+  --pv-hover: rgba(255, 255, 255, 0.06);
+  --play-now: var(--accent);
+  --play-now-bg: rgba(122, 162, 255, 0.18);
+  --play-trail: var(--pv-anchor);
+  --play-stale: var(--warn);
+  --play-cold: var(--ink-3);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* The panels size themselves, the canvas takes the rest. `min-height: 0` on every child is what keeps a tall
+   panel scrolling inside itself instead of stretching the row and handing the scrollbar to the window. */
+.app {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  height: 100%;
+  overflow: hidden;
+}
+.app > * {
+  min-height: 0;
+}
+.canvas-wrap {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.canvas-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.canvas-host.connecting .knot:hover {
+  box-shadow: 0 0 0 2px var(--accent), var(--shadow);
+}
+.canvas-host.connecting .react-flow__handle {
+  width: 14px;
+  height: 14px;
+}
+.canvas-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  font-size: 13px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 300px;
+  background: var(--panel);
+  border-right: 1px solid var(--rule);
+  padding: 14px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.sidebar.closed {
+  width: auto;
+  padding: 8px;
+  overflow: visible;
+}
+.sidebar.closed .tab,
+.dock.closed .tab,
+.play.closed .tab {
+  writing-mode: vertical-rl;
+  font: inherit;
+  font-size: 12px;
+  padding: 8px 4px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.play.closed .play-open {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.sidebar.closed .tab:hover,
+.dock.closed .tab:hover,
+.play.closed .tab:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar h1 {
+  font-size: 18px;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.sidebar section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sidebar form,
+.sidebar .row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.sidebar .row.wrap {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.sidebar input[type='text'],
+.sidebar input:not([type]) {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.sidebar button {
+  font: inherit;
+  padding: 6px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+.sidebar button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.sidebar button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.sidebar button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.sidebar button.ghost {
+  border-color: transparent;
+  color: var(--ink-3);
+  padding: 4px 8px;
+  font-size: 12px;
+}
+.sidebar input:focus-visible,
+.sidebar button:focus-visible,
+.sidebar select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.sidebar .check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.sidebar select {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 4px 6px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--ink);
+  max-width: 100%;
+}
+.label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.muted {
+  color: var(--ink-3);
+  margin: 0;
+  font-size: 13px;
+}
+.error {
+  color: var(--bad);
+  margin: 0;
+  font-size: 13px;
+}
+.mono {
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.dirty {
+  color: var(--warn);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.list.clickable li {
+  cursor: pointer;
+}
+.list.clickable li:hover {
+  background: var(--bg);
+}
+.list .grow {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+.filelist .icon {
+  display: inline-flex;
+  flex: none;
+}
+.filelist li.hidden .grow {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+.filelist.unused li {
+  color: var(--ink-3);
+}
+.sidebar .eye {
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 12px;
+  line-height: 1;
+}
+.sidebar .eye[aria-pressed='true'] {
+  color: var(--accent);
+}
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.banner.error {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.banner.warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.banner button {
+  font-size: 12px;
+  padding: 3px 8px;
+}
+.diagnostics li {
+  align-items: flex-start;
+}
+.diagnostics .grow {
+  white-space: normal;
+  font-size: 13px;
+}
+.diagnostics .sev {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--ink-3);
+  flex: none;
+}
+.diagnostics li.error .sev {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.diagnostics li.warning .sev {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+/* Nodes */
+/* The card fills the React Flow node box, whose width (and height, once the user resizes) comes from the sidecar. */
+.knot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  box-shadow: var(--shadow);
+  font-size: 12px;
+}
+.knot.selected {
+  box-shadow: 0 0 0 2px var(--accent), var(--shadow);
+}
+.knot.missing {
+  border-style: dashed;
+  border-color: var(--bad);
+}
+.knot-header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 8px 0 6px;
+  color: #fff;
+  border-radius: 6px 6px 0 0;
+  font-family: var(--mono);
+}
+.knot.compact .knot-header {
+  border-radius: 6px;
+}
+.knot-header .name {
+  font-weight: 600;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.knot-header .badges {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+.knot-header .badges b {
+  font-weight: 500;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+}
+.knot-header .badges b.err {
+  background: #fff;
+  color: var(--bad);
+}
+.knot-header .file {
+  margin-left: auto;
+  font-size: 10px;
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40%;
+}
+.knot-header .act {
+  flex: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  cursor: pointer;
+  transform: scale(clamp(1, calc(0.55 / var(--canvas-zoom, 1)), 1.8));
+  transform-origin: center;
+}
+.knot-header .act.toggle {
+  padding: 4px 6px;
+  background: transparent;
+  font-size: 14px;
+  transform-origin: left center;
+}
+.knot-header .act:hover {
+  background: #fff;
+  color: var(--ink);
+}
+/* Structure preview. Every row's height comes from layoutRows() in model/preview.ts, which is also what
+   places the wire handles: change a padding here and the DEV canary in StructureNode will say so. */
+.knot-structure {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0 0 6px 6px;
+  contain: layout paint;
+}
+.pv-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding-right: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.pv-row:hover {
+  background: var(--pv-hover);
+}
+/* The knot's own `=== name ===` line: the card header already draws it, so the row is a zero-height spacer. */
+.pv-header {
+  visibility: hidden;
+}
+.pv-pip {
+  flex: none;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+.pv-cond-on .pv-pip {
+  background: var(--pv-cond);
+}
+/* Inside a multiline `{...}`: a rail in its own column. Brace nesting never adds indent -- that channel is
+   weave depth's, and doubling them up makes a depth-1 choice in a condition read as depth 2. */
+.pv-rail {
+  box-shadow: inset 2px 0 0 -1px var(--pv-cond);
+}
+.pv-mark {
+  flex: none;
+  width: 6px;
+  height: 6px;
+}
+.pv-choice .pv-mark {
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--pv-choice);
+}
+/* Gather amber and condition gold are close hues, told apart by shape and column: the gather is a horizontal
+   dash where its `-` is, the condition a round pip to its left. */
+.pv-gather .pv-mark {
+  width: 6px;
+  height: 2px;
+  background: var(--pv-gather);
+}
+.pv-stitch .pv-mark {
+  width: 3px;
+  height: 100%;
+  background: var(--pv-anchor);
+}
+.pv-divert .pv-mark {
+  width: 0;
+  height: 0;
+  border: 3px solid transparent;
+  border-left-color: var(--pv-divert);
+}
+.pv-bar {
+  flex: none;
+  height: 4px;
+  border-radius: 1px;
+  background: var(--pv-prose);
+}
+.pv-logic .pv-bar {
+  height: 3px;
+  background: var(--pv-logic);
+}
+.pv-cond .pv-bar {
+  background: var(--pv-cond);
+  opacity: 0.35;
+}
+.pv-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 10px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--pv-text);
+}
+/* Where a row goes, on rows that also have words of their own. It never shrinks: "which choice is this"
+   survives truncation, "where does it go" does not. */
+.pv-goto {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-left: 6px;
+  font-size: 10px;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--pv-divert);
+}
+.pv-choice .pv-text {
+  font-weight: 500;
+}
+.pv-stitch .pv-text,
+.pv-gather .pv-text {
+  color: var(--pv-anchor);
+}
+.pv-divert .pv-text,
+.pv-target .pv-text {
+  color: var(--pv-dim);
+}
+
+/* Docked ink editor */
+.dock {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-left: 1px solid var(--rule);
+}
+.dock.closed {
+  width: auto;
+  padding: 8px;
+}
+/* The divider sits over the dock's left border and is wider than it, so it is easy to grab. */
+.dock-grip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  width: 14px;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 2;
+}
+.dock-grip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  background: var(--rule);
+  opacity: 0.85;
+}
+.dock-grip:hover,
+.dock-grip:active {
+  background: transparent;
+}
+.dock-grip:hover::before,
+.dock-grip:active::before {
+  background: var(--accent);
+  opacity: 1;
+}
+.dock header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--rule);
+}
+.dock header .name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dock header .file {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40%;
+}
+.dock .tab {
+  flex: none;
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.dock .tab:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.dock .tab:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.dock .tab:disabled:hover {
+  border-color: var(--rule);
+  color: var(--ink-2);
+}
+.dock header .fontsize {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+.dock header .fontsize .tab {
+  padding: 3px 6px;
+  font-family: var(--mono);
+}
+/* Divert targets are already underlined by the syntax highlighting; the pointer is what says "this goes
+   somewhere", and the tint confirms the hit area before you commit to the click. No padding: the mark
+   wraps only the name glyphs, and the click handler refuses anything outside that span. */
+.cm-ink-link {
+  cursor: pointer;
+  padding: 0;
+}
+.cm-ink-link:hover {
+  background: var(--pv-hover);
+  border-radius: 2px;
+}
+.dock-editor {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  cursor: text;
+}
+.dock-editor > div,
+.dock-editor .cm-editor {
+  height: 100%;
+}
+.dock-editor .cm-scroller {
+  max-height: none;
+}
+.pad {
+  padding: 12px;
+}
+.react-flow__handle {
+  width: 9px;
+  height: 9px;
+  background: var(--accent);
+  border: 2px solid var(--panel);
+}
+.react-flow__handle.line-handle {
+  width: 7px;
+  height: 7px;
+  background: var(--ink-3);
+  border-width: 1px;
+  pointer-events: none;
+}
+.react-flow__edge-textbg {
+  rx: 3;
+}
+
+/* Reroute dots */
+.react-flow__node-reroute {
+  width: 12px;
+  height: 12px;
+}
+.reroute {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--panel);
+  box-shadow: 0 0 0 1px var(--accent);
+  cursor: grab;
+}
+.reroute.selected {
+  box-shadow: 0 0 0 3px var(--accent);
+}
+/* Every side's handle covers the whole dot, so all eight anchor at its centre and only their side matters. */
+.reroute .react-flow__handle {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  transform: none;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Resize handles */
+.react-flow__resize-control.handle {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  border-color: var(--panel);
+  background-color: var(--accent);
+}
+.react-flow__resize-control.line {
+  border-color: var(--accent);
+}
+
+/* Play panel — paint-only decorations on cards (no padding/margin/height/border-width/font-size on
+   .pv-row, .pv-pip, .pv-mark, .knot-structure, .knot-header). */
+.knot.play-now {
+  outline: 2px solid var(--play-now);
+  outline-offset: 1px;
+}
+.knot.play-trail:not(.play-now) {
+  outline: 1px solid color-mix(in srgb, var(--play-trail) 55%, transparent);
+  outline-offset: 1px;
+}
+.knot.play-stale .knot-header {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 4px,
+    color-mix(in srgb, var(--play-stale) 35%, transparent) 4px,
+    color-mix(in srgb, var(--play-stale) 35%, transparent) 8px
+  );
+}
+.pv-row.play-now {
+  background: var(--play-now-bg);
+  box-shadow: inset 3px 0 0 var(--play-now);
+}
+.pv-row.play-step {
+  background: color-mix(in srgb, var(--play-now-bg) 55%, transparent);
+}
+.pv-row.play-cold {
+  opacity: 0.35;
+}
+.pv-row.play-bp {
+  box-shadow: inset 3px 0 0 var(--play-stale);
+}
+.pv-row.play-now.play-bp {
+  box-shadow: inset 3px 0 0 var(--play-now), inset 6px 0 0 var(--play-stale);
+}
+.react-flow__edge.play-lit .react-flow__edge-path {
+  stroke: var(--play-trail);
+  stroke-width: 2.5;
+}
+.react-flow__edge.play-lit-now .react-flow__edge-path {
+  stroke: var(--play-now);
+  stroke-width: 3;
+}
+
+.play {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-left: 1px solid var(--rule);
+  font-size: 13px;
+}
+.play.closed {
+  width: auto;
+  padding: 8px;
+}
+.play-grip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  width: 14px;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 2;
+}
+.play-grip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  background: var(--rule);
+  opacity: 0.85;
+}
+.play-grip:hover,
+.play-grip:active {
+  background: transparent;
+}
+.play-grip:hover::before,
+.play-grip:active::before {
+  background: var(--accent);
+  opacity: 1;
+}
+.play-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid var(--rule);
+  flex: none;
+}
+.play .tab {
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.play .tab:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.play .tab:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.play-from {
+  flex: 1 1 80px;
+  min-width: 0;
+  font: inherit;
+  font-size: 12px;
+  padding: 3px 4px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink);
+}
+.play-status,
+.play-notes {
+  margin: 0;
+  padding: 6px 10px;
+  list-style: none;
+  border-bottom: 1px solid var(--rule);
+  flex: none;
+  font-size: 12px;
+  max-height: 28%;
+  overflow: auto;
+}
+.play-notes.on-path,
+.play-notes .warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.play-notes .error {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.play-notes li {
+  margin: 2px 0;
+}
+.play-notes button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+}
+.play-transcript {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 10px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.play-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+  margin: 2px 0;
+}
+.play-line .body {
+  flex: 1 1 auto;
+  white-space: pre-wrap;
+}
+.play-line .tag {
+  color: var(--ink-3);
+  font-size: 11px;
+}
+.play-line .badge {
+  margin-left: auto;
+  font: inherit;
+  font-size: 10px;
+  color: var(--ink-3);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.play-line .badge:hover {
+  color: var(--accent);
+}
+.play-line .notice,
+.play-line .jump,
+.play-line .fault-text {
+  flex: 1 0 100%;
+  font-size: 12px;
+}
+.play-line.fault,
+.play-line .fault-text {
+  color: var(--bad);
+}
+.play-turn {
+  flex: 1 0 100%;
+  color: var(--ink-3);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  margin: 8px 0 4px;
+}
+.play-end {
+  color: var(--ink-3);
+  margin-top: 8px;
+}
+.play-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+.play-choices button {
+  font: inherit;
+  text-align: left;
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--panel-2);
+  color: var(--ink);
+  cursor: pointer;
+}
+.play-choices button:hover {
+  border-color: var(--accent);
+}
+.play-inspect {
+  flex: none;
+  max-height: 36%;
+  overflow: auto;
+  border-top: 1px solid var(--rule);
+  padding: 4px 0 8px;
+}
+.play-twist,
+.play-add-bp,
+.play-cov-item,
+.play-x {
+  font: inherit;
+  font-size: 12px;
+  background: none;
+  border: 0;
+  color: var(--ink-2);
+  cursor: pointer;
+  text-align: left;
+}
+.play-twist {
+  width: 100%;
+  padding: 6px 10px;
+}
+.play-vars,
+.play-cov,
+.play-bps {
+  padding: 0 10px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.play-filter,
+.play-stub,
+.play-var .val {
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 6px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.play-hint,
+.play .muted {
+  margin: 0 0 4px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.play-var {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+}
+.play-var .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+}
+.play-var.changed .name {
+  color: var(--play-now);
+}
+.play-var.locked .val {
+  border: 0;
+  background: none;
+  color: var(--ink-3);
+}
+.play-var .delta {
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.play-watch {
+  font: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--ink-3);
+  padding: 0;
+}
+.play-cov-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+}
+.play-cov-item .file {
+  color: var(--ink-3);
+  font-size: 11px;
+}
+.play-bp-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.play-bp-row.stale .play-cov-item {
+  color: var(--play-stale);
+}
+.play-footer {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 6px 10px 8px;
+  border-top: 1px solid var(--rule);
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.play-footer label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.play-footer .rec {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dialog-back {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.dialog {
+  width: min(420px, calc(100vw - 32px));
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dialog h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.dialog p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.dialog input {
+  width: 100%;
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.dialog .check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.dialog button {
+  font: inherit;
+  padding: 6px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+.dialog button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.dialog button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.dialog button.danger {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: #fff;
+}
+.dialog button.danger:hover {
+  color: #fff;
+}
+

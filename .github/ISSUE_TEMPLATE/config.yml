@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/ifishbw/Ink-Visual-Editor/discussions
+    about: Open-ended questions, showing off a project, or "is this a bug?" — start here.
+  - name: The ink language itself
+    url: https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md
+    about: Syntax questions about ink belong with inkle's documentation, not with this editor.
+  - name: Inky, inkle's own editor
+    url: https://github.com/inkle/inky/issues
+    about: Bugs in Inky (the official text editor for ink) go to inkle.

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A newer push to the same branch/PR makes the older run pointless.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: typecheck / test / build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # Nothing in this job launches Electron: `build` is tsc + vite build +
+      # esbuild (scripts/build-electron.mjs), and esbuild marks `electron`
+      # external. Skipping the ~100 MB binary download keeps `npm ci` fast.
+      # The release workflow does NOT skip it -- electron-builder needs it.
+      - name: Install dependencies
+        run: npm ci
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # Renderer bundle + main/preload bundles. Installers are built only in
+      # release.yml; packaging on every push would triple the CI time.
+      - name: Build
+        run: npm run build

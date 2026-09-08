@@ -1,0 +1,152 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  # Manual dry run: builds and uploads the installers as job artifacts,
+  # but never touches a GitHub Release (the `release` job is tag-only).
+  workflow_dispatch:
+
+# Never cancel a release mid-upload; queue instead.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '22'
+  # No code-signing certificate exists for this project. Tell electron-builder
+  # not to go looking for one in the keychain / cert store, or it fails the
+  # build on a runner that happens to have an unrelated identity installed.
+  CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+jobs:
+  build:
+    name: Build ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            label: Windows
+            target: --win
+            artifact: installers-windows
+          - os: ubuntu-latest
+            label: Linux
+            target: --linux
+            artifact: installers-linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      # electron-builder shells out to dpkg-deb under fakeroot for the .deb
+      # target. The GitHub ubuntu images normally ship both; install only what
+      # is actually missing so a future image change cannot break the release.
+      - name: Ensure Debian packaging tools
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          missing=""
+          for tool in fakeroot dpkg dpkg-deb; do
+            command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"
+          done
+          if [ -n "$missing" ]; then
+            echo "missing:$missing -- installing"
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends fakeroot dpkg
+          else
+            echo "fakeroot and dpkg already present"
+          fi
+
+      # No ELECTRON_SKIP_BINARY_DOWNLOAD here: electron-builder packages the
+      # downloaded Electron binary into the installers.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # `npm run build` = tsc --noEmit + vite build (dist/) + esbuild
+      # (build/main.cjs, build/preload.cjs). electron-builder only packages.
+      - name: Build renderer and Electron bundles
+        run: npm run build
+
+      - name: Package installers
+        run: npx electron-builder ${{ matrix.target }} --publish never
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            release/*.exe
+            release/*.AppImage
+            release/*.deb
+            release/*.yml
+            release/*.blockmap
+
+  release:
+    name: Publish GitHub Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    # workflow_dispatch runs stop at the artifacts above; only a v* tag publishes.
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: installers-*
+          merge-multiple: true
+
+      - name: List what will be attached
+        run: ls -lR artifacts
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/*.exe
+            artifacts/*.AppImage
+            artifacts/*.deb
+            artifacts/*.yml
+            artifacts/*.blockmap
+          body: |
+            **InkVisual ${{ github.ref_name }}** — a graph-based editor for inkle's ink.
+
+            ### Which file do I download?
+
+            | You are on | File | How to use it |
+            | --- | --- | --- |
+            | Windows | the `.exe` with `Setup` in its name | Installer. Start-menu entry, uninstaller. |
+            | Windows, no install | the other `.exe` | Portable. Run it from anywhere, including a USB stick. |
+            | Linux, any distro | `.AppImage` | `chmod +x` it, then run it. |
+            | Debian / Ubuntu | `.deb` | `sudo apt install ./<file>.deb` |
+
+            The `.yml` and `.blockmap` files are for the updater; you do not need them.
+
+            > These builds are **unsigned** — this project has no code-signing certificate.
+            > Windows SmartScreen will say "Windows protected your PC" on first run:
+            > choose **More info → Run anyway**. On Linux nothing complains.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

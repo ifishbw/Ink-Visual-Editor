@@ -1,0 +1,88 @@
+# electron-builder configuration. Run via `npm run dist` / `dist:win` / `dist:linux`,
+# each of which does a full `npm run build` first (typecheck + vite build + esbuild main/preload).
+appId: io.github.ifishbw.inkvisual
+productName: InkVisual
+copyright: Copyright © 2026 ifishbw
+
+directories:
+  output: release
+  buildResources: build # where icon.ico / icon.png live
+
+# What goes inside the app.
+#
+# The renderer's dependencies are bundled into dist/ by Vite and main/preload are bundled into
+# build/*.cjs by esbuild, so package.json's `dependencies` is empty and no node_modules is shipped.
+# Three entries is the whole app.
+#
+# Order matters: electron-builder injects `!build{,/**/*}` (it excludes the buildResources dir) and
+# `!release{,/**/*}` *ahead* of these patterns, and its matcher only re-tests exclusions once a file
+# has already matched an include. Our `build/**/*` therefore wins -- but only because it comes after
+# the injected ones, which it will as long as no pattern here starts with `**/`.
+files:
+  - build/**/*
+  - '!build/*.map' # esbuild sourcemaps are for us, not for users
+  - '!build/README.md'
+  - dist/**/*
+  - package.json
+
+# A fresh install has no project to open, so ship the sample stories next to the app. They land in
+# resources/examples (process.resourcesPath) and the app offers them from there.
+extraResources:
+  - from: examples
+    to: examples
+    filter:
+      - '**/*'
+
+asar: true
+npmRebuild: false # nothing native to rebuild -- `dependencies` is empty
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+# Deliberately no `fileAssociations`: ink authors already have .ink bound to Inky, and an installer
+# that silently steals the association is a bad neighbour. InkVisual opens a *project* (a root .ink
+# file plus its INCLUDEs) rather than a loose file, so the association buys little either way.
+
+nsis:
+  oneClick: false # show the wizard; a silent install of an unsigned exe looks like malware
+  perMachine: false # per-user install needs no UAC prompt
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: InkVisual
+  artifactName: InkVisual-Setup-${version}-${arch}.${ext}
+
+portable:
+  artifactName: InkVisual-${version}-portable-${arch}.${ext}
+
+linux:
+  icon: build/icon.png
+  category: Development
+  maintainer: ifishbw <westlake.benjamin@gmail.com> # required by deb
+  synopsis: Graph editor for inkle's ink narrative language
+  description: >-
+    InkVisual lays out an ink story as a Twine-style graph: every knot is a node, every divert is a
+    wire, and the raw ink stays editable in a docked CodeMirror pane. The .ink files remain the only
+    source of truth -- node positions live in a sidecar .inkvisual.json. Includes a play/debug mode
+    with stepping, breakpoints, variable inspection and coverage.
+  desktop:
+    entry:
+      # Electron sets WM_CLASS from productName; without this GNOME cannot tie the window back to
+      # the .desktop file and shows it under a generic icon.
+      StartupWMClass: InkVisual
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  artifactName: InkVisual-${version}-${arch}.${ext}
+
+publish:
+  provider: github
+  owner: ifishbw
+  repo: Ink-Visual-Editor
+  releaseType: release

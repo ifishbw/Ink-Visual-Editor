@@ -1,0 +1,296 @@
+{
+  "version": 1,
+  "nodes": {
+    "SavingTortugaRework.ink#": {
+      "x": -107,
+      "y": 727
+    },
+    "Exposition": {
+      "x": 290,
+      "y": 737
+    },
+    "Outside_Inn": {
+      "x": 692,
+      "y": 768
+    },
+    "wait": {
+      "x": 1093,
+      "y": 524
+    },
+    "Town_Square_Intro": {
+      "x": 1094,
+      "y": 780
+    },
+    "Town_Square": {
+      "x": 1578,
+      "y": 807
+    },
+    "look_for_jon": {
+      "x": 2273,
+      "y": 1145
+    },
+    "prisoner": {
+      "x": 3106,
+      "y": 690
+    },
+    "priest": {
+      "x": 3107,
+      "y": 1178
+    },
+    "first_meeting": {
+      "x": 3890,
+      "y": 1067
+    },
+    "ask_prisoner": {
+      "x": 3894,
+      "y": 1219
+    },
+    "provide_evi": {
+      "x": 5092,
+      "y": 1403
+    },
+    "ask_for_key": {
+      "x": 4684,
+      "y": 1522
+    },
+    "steal_keys": {
+      "x": 3649,
+      "y": 1599
+    },
+    "steal_success": {
+      "x": 4182,
+      "y": 1578
+    },
+    "steal_fail": {
+      "x": 4180,
+      "y": 1641
+    },
+    "docks": {
+      "x": 2236,
+      "y": 1814
+    },
+    "YourBoat": {
+      "x": 2824,
+      "y": 1799
+    },
+    "dock_worker": {
+      "x": 2814,
+      "y": 2290
+    },
+    "investigate_docks": {
+      "x": 2818,
+      "y": 2191
+    },
+    "leave_without_jon": {
+      "x": 4589,
+      "y": 2060
+    },
+    "inn": {
+      "x": 1841,
+      "y": 350
+    },
+    "storm": {
+      "x": 3606,
+      "y": 393
+    },
+    "morning": {
+      "x": 4233,
+      "y": 401
+    },
+    "side_with_pirates": {
+      "x": 5202,
+      "y": -458
+    },
+    "side_with_priest": {
+      "x": 5125,
+      "y": 398
+    },
+    "ship_with_pirates": {
+      "x": 6797,
+      "y": 1518
+    },
+    "holy_boat": {
+      "x": 5744,
+      "y": 479
+    },
+    "sailing_holy": {
+      "x": 6819,
+      "y": 871
+    },
+    "spend_a_day": {
+      "x": 8177,
+      "y": 1649
+    },
+    "bored_at_sea": {
+      "x": 8830,
+      "y": 2323
+    },
+    "pirate_bored": {
+      "x": 9261,
+      "y": 2285
+    },
+    "holy_bored": {
+      "x": 9257,
+      "y": 2405
+    },
+    "storm_on_boat": {
+      "x": 7380,
+      "y": 657
+    },
+    "crown_and_anchor": {
+      "x": 8810,
+      "y": 1313
+    },
+    "has": {
+      "x": 17,
+      "y": 1224
+    },
+    "knows": {
+      "x": 17,
+      "y": 1310
+    },
+    "take": {
+      "x": 17,
+      "y": 1396
+    },
+    "learn": {
+      "x": 17,
+      "y": 1482
+    },
+    "rolldie": {
+      "x": 17,
+      "y": 1568
+    },
+    "placebet": {
+      "x": 17,
+      "y": 1708
+    },
+    "die_symbol": {
+      "x": 17,
+      "y": 1794
+    },
+    "ask_pirates_about_tortuga": {
+      "x": 8826,
+      "y": 1770
+    },
+    "Captain_Chat": {
+      "x": 8826,
+      "y": 2032
+    },
+    "ignore_barrel": {
+      "x": 7386,
+      "y": 761
+    },
+    "sail_to_it": {
+      "x": 7361,
+      "y": 984
+    },
+    "jump_out": {
+      "x": 7759,
+      "y": 1014
+    },
+    "swimm_after": {
+      "x": 8173,
+      "y": 1036
+    },
+    "stay_on_boat": {
+      "x": 8172,
+      "y": 1115
+    },
+    "broken_barrel": {
+      "x": 8094,
+      "y": 792
+    },
+    "hike_into_tortuga": {
+      "x": 8901,
+      "y": 911
+    },
+    "tortuga": {
+      "x": 9382,
+      "y": 988
+    },
+    "tavern": {
+      "x": 9948,
+      "y": 713
+    },
+    "pirate_lord": {
+      "x": 9988,
+      "y": 852
+    },
+    "investigate": {
+      "x": 9894,
+      "y": 624
+    },
+    "find_jon": {
+      "x": 10169,
+      "y": 1375
+    }
+  },
+  "files": {},
+  "reroutes": {
+    "YourBoat->leave_without_jon": [
+      {
+        "x": 3509,
+        "y": 2080
+      }
+    ],
+    "docks->Town_Square": [
+      {
+        "x": 2580,
+        "y": 1969
+      },
+      {
+        "x": 2467,
+        "y": 2050
+      },
+      {
+        "x": 1327,
+        "y": 1088
+      }
+    ],
+    "ship_with_pirates->spend_a_day": [
+      {
+        "x": 7575,
+        "y": 1656
+      }
+    ],
+    "sailing_holy->spend_a_day": [
+      {
+        "x": 7284,
+        "y": 1127
+      },
+      {
+        "x": 7847,
+        "y": 1638
+      }
+    ],
+    "inn->Town_Square": [
+      {
+        "x": 2242,
+        "y": 466
+      },
+      {
+        "x": 2145,
+        "y": 533
+      },
+      {
+        "x": 1665,
+        "y": 541
+      },
+      {
+        "x": 1487,
+        "y": 688
+      }
+    ],
+    "Town_Square->inn": [
+      {
+        "x": 1966,
+        "y": 804
+      },
+      {
+        "x": 1734,
+        "y": 458
+      }
+    ]
+  }
+}

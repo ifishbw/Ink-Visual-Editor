@@ -1,0 +1,108 @@
+name: Bug report
+description: Something in InkVisual behaves wrong, crashes, or mangles a file.
+title: '[Bug] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing. The most useful bug report is one someone else can reproduce,
+        so a small `.ink` file that shows the problem is worth more than a paragraph.
+
+  - type: checkboxes
+    id: data-loss
+    attributes:
+      label: Severity
+      options:
+        - label: This changed or lost the contents of one of my `.ink` files.
+          required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got instead.
+      placeholder: |
+        I dragged a wire from `intro` to `market`, and ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1. Open a project with ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: ink
+    attributes:
+      label: Minimal ink that shows it
+      description: >
+        A knot or two is usually enough. Paste it here or attach the file --
+        include the sidecar `*.inkvisual.json` too if the problem is about node
+        positions, sizes, collapsed nodes or reroute dots.
+      render: text
+    validations:
+      required: false
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - Linux (Debian / Ubuntu)
+        - Linux (other)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How you installed it
+      options:
+        - Windows installer (.exe with "Setup" in the name)
+        - Windows portable (.exe)
+        - Linux AppImage
+        - Linux .deb
+        - Built from source (npm run dev / npm run dev:app)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: InkVisual version
+      description: From the release you downloaded, or the commit SHA if you built it yourself.
+      placeholder: v0.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: project-shape
+    attributes:
+      label: Project shape
+      description: INCLUDE handling is a common source of surprises, so this matters.
+      options:
+        - Single .ink file
+        - Multiple files via INCLUDE
+        - Not relevant
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: >
+        Screenshots help a lot for canvas and layout bugs. If the app showed an
+        error banner or printed a stack trace, paste it here.
+    validations:
+      required: false

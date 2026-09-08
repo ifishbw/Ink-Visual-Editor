@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/main.cjs
+build/preload.cjs
+release/
+*.log
+.DS_Store
+.vite/

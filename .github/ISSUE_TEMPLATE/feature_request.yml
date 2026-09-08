@@ -1,0 +1,55 @@
+name: Feature request
+description: Suggest something InkVisual should do.
+title: '[Feature] '
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        InkVisual has one hard rule that shapes every feature: **the `.ink` files are
+        the only source of truth**, and ink is never regenerated from a parsed tree.
+        Anything that would rewrite a writer's ink for them is out of scope; anything
+        that helps them see or reach their ink faster is very much in scope.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is awkward today
+      description: Describe the situation you hit, not the solution yet.
+      placeholder: >
+        When a knot has twenty choices I lose track of which ones already have
+        somewhere to go, because ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like instead
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app
+      options:
+        - Canvas and wires
+        - Node structure preview
+        - Docked ink editor
+        - Play / debug mode
+        - File panel, projects, saving
+        - Packaging and install
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or prior art
+      description: >
+        Does Inky, Twine, Arcweave or another tool already do this? Saying how they
+        do it (and what you dislike about it) is genuinely useful.
+    validations:
+      required: false

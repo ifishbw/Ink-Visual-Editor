@@ -98,6 +98,7 @@ jobs:
             release/*.deb
             release/*.yml
             release/*.blockmap
+            !release/builder-debug.yml
 
   release:
     name: Publish GitHub Release
@@ -131,6 +132,7 @@ jobs:
             artifacts/*.deb
             artifacts/*.yml
             artifacts/*.blockmap
+            !artifacts/builder-debug.yml
           body: |
             **InkVisual ${{ github.ref_name }}** — a graph-based editor for inkle's ink.
 

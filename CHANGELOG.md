@@ -92,6 +92,9 @@ First public release, and the first with desktop builds.
   pure wire-routing, editor-link and theme helpers.
 - Two example projects (`examples/saving-tortuga`, `examples/tech-demo`) and two test fixture projects
   (`tests/fixtures/`).
+- Both examples are walked 200 times with a seeded random player on every test run, so neither can ship
+  a dead end. (An exhausted ink choice set does not fall through to its gather, so a knot that is
+  re-entered can run out of content mid-scene; several such dead ends were fixed before this release.)
 
 ### Known limitations
 

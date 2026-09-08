@@ -7,10 +7,10 @@ Open the newest release and look under **Assets** for the file that matches your
 
 | File name looks like | Platform | What it is |
 |---|---|---|
-| `InkVisual-Setup-0.1.0.exe` | Windows | Installer. Adds a Start-menu shortcut and an uninstaller. |
-| `InkVisual-0.1.0-portable.exe` (or `InkVisual-0.1.0.exe`) | Windows | A single file that runs on the spot. Installs nothing. |
-| `InkVisual-0.1.0.AppImage` | Linux | A single file that runs on almost any distribution. |
-| `InkVisual_0.1.0_amd64.deb` | Debian, Ubuntu, Mint, Pop!_OS | A system package. |
+| `InkVisual-Setup-0.1.0-x64.exe` | Windows | Installer. Adds a Start-menu shortcut and an uninstaller. |
+| `InkVisual-0.1.0-portable-x64.exe` | Windows | A single file that runs on the spot. Installs nothing. |
+| `InkVisual-0.1.0-x64.AppImage` | Linux | A single file that runs on almost any distribution. |
+| `InkVisual-0.1.0-x64.deb` | Debian, Ubuntu, Mint, Pop!_OS | A system package. |
 
 The version number changes with each release; the shape of the names does not.
 
@@ -49,7 +49,7 @@ If you would rather check the file first, see [Verifying a download](#verifying-
 
 ### Installing
 
-1. Double-click `InkVisual-Setup-<version>.exe`.
+1. Double-click `InkVisual-Setup-<version>-x64.exe`.
 2. Work through the SmartScreen box as above.
 3. The installer runs. By default it installs to
    `C:\Users\<you>\AppData\Local\Programs\InkVisual`, and offers a desktop shortcut.
@@ -121,7 +121,7 @@ Install from the folder you downloaded it into. The leading `./` matters — wit
 package by that name in your repositories:
 
 ```sh
-sudo apt install ./InkVisual_*.deb
+sudo apt install ./InkVisual*.deb
 ```
 
 InkVisual then appears in your application menu.
@@ -165,13 +165,13 @@ includes a checksum file (`SHA256SUMS` or similar), you can confirm the download
 **Windows (PowerShell):**
 
 ```powershell
-Get-FileHash .\InkVisual-Setup-0.1.0.exe -Algorithm SHA256
+Get-FileHash .\InkVisual-Setup-0.1.0-x64.exe -Algorithm SHA256
 ```
 
 **Linux:**
 
 ```sh
-sha256sum InkVisual-0.1.0.AppImage
+sha256sum InkVisual-0.1.0-x64.AppImage
 ```
 
 Compare the result with the value published in the release. Only ever download InkVisual from

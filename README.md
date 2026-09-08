@@ -31,7 +31,7 @@ Get the latest build from the **[Releases page](https://github.com/ifishbw/Ink-V
 | Windows | the `Setup` `.exe` installer | Normal install, adds a Start-menu entry. Pick this unless you have a reason not to. |
 | Windows, no admin rights / USB stick | the portable `.exe` | One file, run it where it sits, installs nothing. |
 | Linux, any distro | the `.AppImage` | Mark it executable and run it. Works nearly everywhere. |
-| Debian, Ubuntu, Mint | the `.deb` | `sudo apt install ./InkVisual_*.deb` |
+| Debian, Ubuntu, Mint | the `.deb` | `sudo apt install ./InkVisual*.deb` |
 
 The Windows builds are **not code-signed**, so Windows shows a blue "Windows protected your PC" box the first
 time you run one. That is expected. [INSTALL.md](docs/INSTALL.md) shows exactly what to click.

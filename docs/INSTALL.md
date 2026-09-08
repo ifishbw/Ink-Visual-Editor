@@ -9,8 +9,8 @@ Open the newest release and look under **Assets** for the file that matches your
 |---|---|---|
 | `InkVisual-Setup-0.1.0-x64.exe` | Windows | Installer. Adds a Start-menu shortcut and an uninstaller. |
 | `InkVisual-0.1.0-portable-x64.exe` | Windows | A single file that runs on the spot. Installs nothing. |
-| `InkVisual-0.1.0-x64.AppImage` | Linux | A single file that runs on almost any distribution. |
-| `InkVisual-0.1.0-x64.deb` | Debian, Ubuntu, Mint, Pop!_OS | A system package. |
+| `InkVisual-0.1.0-x86_64.AppImage` | Linux | A single file that runs on almost any distribution. |
+| `InkVisual-0.1.0-amd64.deb` | Debian, Ubuntu, Mint, Pop!_OS | A system package. |
 
 The version number changes with each release; the shape of the names does not.
 
@@ -171,7 +171,7 @@ Get-FileHash .\InkVisual-Setup-0.1.0-x64.exe -Algorithm SHA256
 **Linux:**
 
 ```sh
-sha256sum InkVisual-0.1.0-x64.AppImage
+sha256sum InkVisual-0.1.0-x86_64.AppImage
 ```
 
 Compare the result with the value published in the release. Only ever download InkVisual from
